@@ -3,6 +3,7 @@ import Perguntas from './controllers/Perguntas';
 
 const routes = Router();
 
+routes.get('/start', Perguntas.start);
 routes.get('/perguntas', Perguntas.index);
 routes.post('/perguntas', Perguntas.create);
 routes.get('/perguntas/:id', Perguntas.show);

@@ -1,78 +1,23 @@
 import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
-import Pergunta from '../models/Pergunta';
-import perguntaView from '../views/perguntas_view';
-import * as Yup from 'yup';
+import PerguntaRepository from '../repository/PerguntaRepository';
 
 export default {
     async index(request: Request, response: Response) {
-        const perguntaRepository = getRepository(Pergunta);
-        const perguntas = await perguntaRepository.find();
-        if (!perguntas) {
-            return response.json({ message: 'Nenhum resultado encontrado.' });
-        }
-        return response.json(perguntaView.renderMany(perguntas));
+        return await PerguntaRepository.index(request, response);
+    },
+    async start(request: Request, response: Response) {
+        return await PerguntaRepository.start(request, response);
     },
     async show(request: Request, response: Response) {
-        const { id } = request.params;
-        const perguntaRepository = getRepository(Pergunta);
-        const pergunta = await perguntaRepository.findOne(id);
-        if (!pergunta) {
-            return response.json({ message: 'Nenhum resultado encontrado.' });
-        }
-        return response.json(perguntaView.render(pergunta));
+        return await PerguntaRepository.show(request, response);
     },
     async create(request: Request, response: Response) {
-        const {
-            descricao,
-            classificacao,
-        } = request.body;
-
-        const perguntasRepository = getRepository(Pergunta);
-
-        const data = {
-            descricao,
-            classificacao,
-            ativo: true,
-            sim: 0,
-            nao: 0,
-            pessimo: 0,
-            ruim: 0,
-            regular: 0,
-            bom: 0,
-            excelente: 0,
-        }
-
-        const schema = Yup.object().shape({
-            descricao: Yup.string().required(),
-            classificacao: Yup.boolean().required(),
-        });
-
-        await schema.validate(data, {
-            abortEarly: false
-        });
-
-        const pergunta = perguntasRepository.create(data);
-
-        await perguntasRepository.save(pergunta);
-
-        return response.status(201).json(pergunta);
+        return await PerguntaRepository.create(request, response);
     },
     async update(request: Request, response: Response) {
-        const { id } = request.params;
-        const { descricao, ativo } = request.body;
-        const perguntaRepository = getRepository(Pergunta);
-        const pergunta = await perguntaRepository.findOneOrFail(id);
-        pergunta.descricao = descricao;
-        pergunta.ativo = ativo;
-        await perguntaRepository.save(pergunta);
-        return response.json(perguntaView.render(pergunta));
+        return await PerguntaRepository.update(request, response);
     },
     async delete(request: Request, response: Response) {
-        const { id } = request.params;
-        const perguntaRepository = getRepository(Pergunta);
-        const pergunta = await perguntaRepository.findOneOrFail(id);
-        await perguntaRepository.remove(pergunta);
-        return response.json({ message: 'Pergunta excluída.' });
+        return await PerguntaRepository.delete(request, response);
     }
 }
